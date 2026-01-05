@@ -1,40 +1,59 @@
 # Ruler Configuration File
+# Frontend Common Ruleset Base Configuration
 # See https://ai.intellectronica.net/ruler for documentation.
 
-# To specify which agents are active by default when --agents is not used,
-# uncomment and populate the following line. If omitted, all agents are active.
-# default_agents = ["copilot", "claude"]
+# Default agents: Cursor, Claude, Codex
+default_agents = ["cursor", "claude", "codex"]
 
-# Enable nested rule loading from nested .ruler directories
-# When enabled, ruler will search for and process .ruler directories throughout the project hierarchy
-# nested = false
+# Enable nested rule loading for sub-project specific rules
+# Each sub-project can have its own .ruler/ directory
+nested = true
 
 # --- Agent Specific Configurations ---
-# You can enable/disable agents and override their default output paths here.
-# Use lowercase agent identifiers: amp, copilot, claude, codex, cursor, windsurf, cline, aider, kilocode
 
-# [agents.copilot]
-# enabled = true
-# output_path = ".github/copilot-instructions.md"
+[agents.cursor]
+enabled = true
+output_path = ".cursor/rules/rules.mdc"
 
-# [agents.aider]
-# enabled = true
-# output_path_instructions = "AGENTS.md"
-# output_path_config = ".aider.conf.yml"
+[agents.claude]
+enabled = true
+output_path = "CLAUDE.md"
 
-# [agents.gemini-cli]
-# enabled = true
+[agents.codex]
+enabled = true
+output_path = "codex.md"
 
 # --- MCP Servers ---
-# Define Model Context Protocol servers here. Two examples:
-# 1. A stdio server (local executable)
-# 2. A remote server (HTTP-based)
+# Token values should be defined in .env.mcp.local
+# Format: VARNAME=value (one per line)
 
-# [mcp_servers.example_stdio]
-# command = "node"
-# args = ["scripts/your-mcp-server.js"]
-# env = { API_KEY = "replace_me" }
+[mcp]
+enabled = true
+merge_strategy = "merge"
 
-# [mcp_servers.example_remote]
-# url = "https://api.example.com/mcp"
-# headers = { Authorization = "Bearer REPLACE_ME" }
+# Figma MCP Server - Design token extraction and component specs
+[mcp_servers.figma]
+command = "npx"
+args = ["-y", "@anthropic/mcp-server-figma"]
+env = { FIGMA_ACCESS_TOKEN = "${FIGMA_ACCESS_TOKEN}" }
+
+# Notion MCP Server - Documentation and knowledge base access
+[mcp_servers.notion]
+command = "npx"
+args = ["-y", "@anthropic/mcp-server-notion"]
+env = { NOTION_API_KEY = "${NOTION_API_KEY}" }
+
+# Playwright MCP Server - Browser automation and E2E testing
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@anthropic/mcp-server-playwright"]
+
+# Sequential Thinking MCP Server - Complex reasoning and analysis
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@anthropic/mcp-server-sequential-thinking"]
+
+# Context7 MCP Server - Library documentation lookup
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@context7/mcp-server"]
