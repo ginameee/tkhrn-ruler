@@ -2,27 +2,37 @@
 
 Centralized AI agent instructions for frontend development projects using [Ruler](https://github.com/intellectronica/ruler).
 
-## Quick Start
+## Installation
 
-### 1. Install Ruler
+### Apply to Existing Project
 
 ```bash
-npm install -g @intellectronica/ruler
+# Copy .ruler directory to your project
+npx degit ginameee/tkhrn-ruler/.ruler .ruler
+
+# Copy environment template
+npx degit ginameee/tkhrn-ruler/.env.mcp.example .env.mcp.example
+
+# Add to .gitignore
+echo -e "\n# Agent Handover Context\n.handover/\n\n# MCP tokens\n.env.mcp.local" >> .gitignore
 ```
 
-### 2. Configure MCP Tokens
+### Configure MCP Tokens
 
 ```bash
-# Copy the example file
+# Create local config from template
 cp .env.mcp.example .env.mcp.local
 
 # Edit and add your tokens
 vim .env.mcp.local
 ```
 
-### 3. Apply Rules
+### Apply Rules
 
 ```bash
+# Install Ruler globally (if not installed)
+npm install -g @intellectronica/ruler
+
 # Apply to all configured agents (Cursor, Claude, Codex)
 ruler apply
 
@@ -33,18 +43,32 @@ ruler apply --agents cursor,claude
 ruler apply --dry-run
 ```
 
+---
+
 ## Project Structure
 
 ```
 .
 ├── .ruler/
-│   ├── AGENTS.md          # Frontend code quality rules
+│   ├── AGENTS.md          # Project overview
+│   ├── code-quality.md    # Code quality 4 principles
+│   ├── atomic-design.md   # Atomic Design pattern & boilerplate
+│   ├── handover.md        # Agent handover protocol
 │   └── ruler.toml         # Ruler configuration
+├── .handover/             # Handover context (gitignored)
 ├── .env.mcp.example       # MCP token template
 ├── .env.mcp.local         # Your MCP tokens (gitignored)
-├── .gitignore
-└── README.md
+└── .gitignore
 ```
+
+## Rule Files
+
+| File | Description |
+|------|-------------|
+| `AGENTS.md` | Project overview and configuration |
+| `code-quality.md` | 4 principles: Readability, Predictability, Cohesion, Coupling |
+| `atomic-design.md` | Atomic Design pattern & boilerplate structure |
+| `handover.md` | Cross-agent context transfer protocol |
 
 ## Configured Agents
 
@@ -64,6 +88,8 @@ ruler apply --dry-run
 | sequential-thinking  | Complex reasoning & analysis         |
 | context7             | Library documentation lookup         |
 
+---
+
 ## Nested Rules
 
 Sub-projects can extend these rules:
@@ -76,7 +102,7 @@ mkdir -p packages/my-app/.ruler
 echo "# My App Rules" > packages/my-app/.ruler/AGENTS.md
 ```
 
-When running `ruler apply`, nested rules are discovered and concatenated with parent rules.
+When running `ruler apply --nested`, rules are discovered and concatenated with parent rules.
 
 ## Commands
 
@@ -100,6 +126,8 @@ ruler apply --verbose
 ruler revert
 ```
 
+---
+
 ## Core Principles
 
 This ruleset enforces four fundamental frontend code quality principles:
@@ -109,7 +137,7 @@ This ruleset enforces four fundamental frontend code quality principles:
 3. **Cohesion** - Related code should stay together
 4. **Low Coupling** - Minimize dependencies between components
 
-See `.ruler/AGENTS.md` for detailed guidelines and examples.
+See `.ruler/code-quality.md` for detailed guidelines and examples.
 
 ## Customization
 
@@ -135,6 +163,8 @@ Edit `.ruler/ruler.toml` to:
 - Change output paths
 - Add/remove MCP servers
 - Configure merge strategies
+
+---
 
 ## Links
 
