@@ -17,6 +17,7 @@ Backend projects and other non-frontend applications should follow their own gui
 | `AGENTS.md` | Project overview and configuration (this file) |
 | `code-quality.md` | Code quality principles (Readability, Predictability, Cohesion, Coupling) |
 | `atomic-design.md` | Atomic Design pattern and boilerplate structure |
+| `handover.md` | Cross-agent context transfer protocol |
 
 ---
 
@@ -28,7 +29,11 @@ project/
 │   ├── AGENTS.md            # Overview (this file)
 │   ├── code-quality.md      # Code quality principles
 │   ├── atomic-design.md     # Atomic Design pattern
+│   ├── handover.md          # Agent handover protocol
 │   └── ruler.toml           # Ruler configuration
+├── .handover/               # Handover context storage (gitignored)
+│   ├── active.md            # Current active handover
+│   └── archive/             # Completed handovers
 ├── packages/
 │   └── feature-a/
 │       └── .ruler/          # Feature-specific rules (nested)
