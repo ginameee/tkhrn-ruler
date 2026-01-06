@@ -14,14 +14,25 @@ nested = true
 [agents.cursor]
 enabled = true
 output_path = ".cursor/rules/rules.mdc"
+# Cursor custom commands directory
+# Commands will be copied to this location when running 'tkhrn-ruler apply'
+command_path = ".cursor/commands"
 
 [agents.claude]
 enabled = true
 output_path = "CLAUDE.md"
+# Claude custom commands directory
+# Claude Desktop typically uses project root or .claude/ directory
+# You can customize this path based on your Claude setup
+command_path = ".claude/commands"
 
 [agents.codex]
 enabled = true
 output_path = "codex.md"
+# Codex custom commands directory
+# Codex typically uses project root or .codex/ directory
+# You can customize this path based on your Codex setup
+command_path = ".codex/commands"
 
 # --- MCP Servers ---
 # Token values should be defined in .env.mcp.local

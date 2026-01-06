@@ -2,6 +2,7 @@ import { program } from 'commander';
 import { spawn } from 'child_process';
 import pc from 'picocolors';
 import { init } from './commands/init.js';
+import { apply } from './commands/apply.js';
 import { VERSION } from '../index.js';
 
 program
@@ -18,12 +19,16 @@ program
   .option('--skip-gitignore', 'Skip .gitignore modification')
   .action(init);
 
-// Passthrough all other commands to ruler
+// Custom apply command with command copying
 program
   .command('apply', { isDefault: false })
-  .description('Apply rules to configured agents (passthrough to ruler)')
+  .description('Apply rules and copy custom commands to configured agents')
+  .option('--nested', 'Include nested .ruler directories')
   .allowUnknownOption(true)
-  .action(() => passthrough('apply'));
+  .action(async () => {
+    const nested = process.argv.includes('--nested');
+    await apply({ nested });
+  });
 
 program
   .command('revert')

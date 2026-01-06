@@ -19,6 +19,43 @@ Backend projects and other non-frontend applications should follow their own gui
 | `atomic-design.md` | Atomic Design pattern and boilerplate structure |
 | `handover.md` | Cross-agent context transfer protocol |
 
+## Custom Commands
+
+Common custom commands for all AI agents can be managed in the `commands/` directory:
+
+```
+.ruler/
+└── commands/        # Common commands for all agents
+    ├── my-command.md
+    └── another-command.md
+```
+
+When you run `tkhrn-ruler apply`, all commands in `.ruler/commands/` will be automatically copied to each enabled agent's command directory:
+
+- **Cursor**: `.cursor/commands/` (default)
+- **Claude**: `.claude/commands/` (default)
+- **Codex**: `.codex/commands/` (default)
+
+Command paths can be customized in `ruler.toml`:
+
+```toml
+[agents.cursor]
+command_path = ".cursor/commands"
+
+[agents.claude]
+command_path = ".claude/commands"  # or "CLAUDE_COMMANDS" if you prefer
+
+[agents.codex]
+command_path = ".codex/commands"   # or "CODEX_COMMANDS" if you prefer
+```
+
+> **Note**: 
+> - Commands in `.ruler/commands/` are **shared** across all enabled agents
+> - If you need agent-specific commands, you can manage them manually in each agent's command directory
+> - If your Claude or Codex setup uses a different directory structure, you can customize the `command_path` in `ruler.toml` to match your configuration
+
+See `commands/README.md` for more details.
+
 ---
 
 ## Project Structure
@@ -30,7 +67,8 @@ project/
 │   ├── code-quality.md      # Code quality principles
 │   ├── atomic-design.md     # Atomic Design pattern
 │   ├── handover.md          # Agent handover protocol
-│   └── ruler.toml           # Ruler configuration
+│   ├── ruler.toml           # Ruler configuration
+│   └── commands/            # Common custom commands (shared by all agents)
 ├── .handover/               # Handover context storage (gitignored)
 │   ├── active.md            # Current active handover
 │   └── archive/             # Completed handovers
@@ -65,11 +103,11 @@ NOTION_API_KEY=your_notion_api_key
 
 ## Configured Agents
 
-| Agent | Output File |
-|-------|-------------|
-| Cursor | `.cursor/rules/rules.mdc` |
-| Claude | `CLAUDE.md` |
-| Codex | `codex.md` |
+| Agent | Rules Output | Commands Path |
+|-------|-------------|---------------|
+| Cursor | `.cursor/rules/rules.mdc` | `.cursor/commands/` |
+| Claude | `CLAUDE.md` | `.claude/commands/` |
+| Codex | `codex.md` | `.codex/commands/` |
 
 ---
 
