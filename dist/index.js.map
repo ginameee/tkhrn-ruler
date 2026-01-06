@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/index.ts"],"sourcesContent":["// tkhrn-ruler - Frontend common ruleset for AI agents\n// Main entry point for programmatic usage\n\nexport const VERSION = '0.1.0';\nexport const REPO = 'ginameee/tkhrn-ruler';\n"],"mappings":";AAGO,IAAM,UAAU;AAChB,IAAM,OAAO;","names":[]}
