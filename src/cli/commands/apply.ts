@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
-import { existsSync, readdirSync, copyFileSync, mkdirSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, readdirSync, copyFileSync, mkdirSync, readFileSync, renameSync } from 'fs';
+import { join, basename, extname } from 'path';
 import pc from 'picocolors';
 import { parse } from '@iarna/toml';
 
@@ -126,7 +126,7 @@ async function copyCommands(
     
     // Copy common commands to this agent's command directory
     try {
-      copyDirectory(rulerCommandsPath, destPath);
+      copyCommandsWithBackup(rulerCommandsPath, destPath);
       console.log(pc.green(`  ✓ Copied commands to ${agentName} → ${commandPath}`));
     } catch (error) {
       console.error(pc.red(`  ✗ Failed to copy commands to ${agentName}: ${error}`));
@@ -181,7 +181,7 @@ async function copyNestedCommands(
       const destPath = join(nestedProjectPath, commandPath);
       
       try {
-        copyDirectory(nestedCommandsPath, destPath);
+        copyCommandsWithBackup(nestedCommandsPath, destPath);
         console.log(pc.green(`  ✓ Copied nested commands to ${agentName} in ${relativePath} → ${commandPath}`));
       } catch (error) {
         console.error(pc.red(`  ✗ Failed to copy nested commands to ${agentName} in ${relativePath}: ${error}`));
@@ -220,7 +220,11 @@ function findNestedRulers(rootPath: string, currentPath: string = rootPath, resu
   return results;
 }
 
-function copyDirectory(source: string, dest: string): void {
+/**
+ * Copy commands from source to destination with backup support.
+ * If a file with the same name exists, it will be backed up as {filename}.bak.md
+ */
+function copyCommandsWithBackup(source: string, dest: string): void {
   // Create destination directory if it doesn't exist
   if (!existsSync(dest)) {
     mkdirSync(dest, { recursive: true });
@@ -233,13 +237,39 @@ function copyDirectory(source: string, dest: string): void {
     const destPath = join(dest, entry.name);
 
     if (entry.isDirectory()) {
-      copyDirectory(sourcePath, destPath);
+      // Recursively copy subdirectories
+      copyCommandsWithBackup(sourcePath, destPath);
     } else {
       // Skip .gitkeep files
       if (entry.name === '.gitkeep') {
         continue;
       }
+
+      // If destination file exists, backup it first
+      if (existsSync(destPath)) {
+        const fileName = basename(destPath, extname(destPath));
+        const fileExt = extname(destPath);
+        const backupPath = join(dest, `${fileName}.bak${fileExt}`);
+        
+        try {
+          renameSync(destPath, backupPath);
+          console.log(pc.dim(`    → Backed up existing file: ${entry.name} → ${basename(backupPath)}`));
+        } catch (error) {
+          console.warn(pc.yellow(`    ⚠ Could not backup ${entry.name}, skipping...`));
+          continue;
+        }
+      }
+
+      // Copy the new file
       copyFileSync(sourcePath, destPath);
     }
   }
+}
+
+/**
+ * Legacy function for backward compatibility (not used anymore)
+ * @deprecated Use copyCommandsWithBackup instead
+ */
+function copyDirectory(source: string, dest: string): void {
+  copyCommandsWithBackup(source, dest);
 }
