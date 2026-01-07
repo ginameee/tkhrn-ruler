@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
-import { existsSync, appendFileSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, appendFileSync, readFileSync, writeFileSync, readdirSync, renameSync, mkdirSync, cpSync } from 'fs';
+import { join, basename } from 'path';
+import { tmpdir } from 'os';
 import pc from 'picocolors';
 import { REPO } from '../../index.js';
 
@@ -12,22 +13,50 @@ interface InitOptions {
 
 export async function init(options: InitOptions) {
   const cwd = process.cwd();
+  const rulerDir = join(cwd, '.ruler');
+  const rulerExists = existsSync(rulerDir);
 
   console.log(pc.bold('\n🚀 Initializing tkhrn-ruler...\n'));
-
-  // Check if .ruler already exists
-  if (existsSync(join(cwd, '.ruler'))) {
-    console.log(pc.yellow('⚠️  .ruler directory already exists.'));
-    console.log(pc.dim('   Use "tkhrn-ruler apply" to apply rules.\n'));
-    return;
-  }
 
   // Step 1: Download .ruler directory using degit
   console.log(pc.dim('→ Downloading ruleset...'));
 
   try {
-    await runCommand('npx', ['degit', `${REPO}/.ruler`, '.ruler']);
-    console.log(pc.green('✓ .ruler directory created'));
+    if (rulerExists) {
+      // Download to temp directory first, then merge
+      const tempDir = join(tmpdir(), `tkhrn-ruler-${Date.now()}`);
+      mkdirSync(tempDir, { recursive: true });
+
+      await runCommand('npx', ['degit', `${REPO}/.ruler`, tempDir, '--force']);
+
+      // Merge files, backup duplicates
+      const downloadedFiles = readdirSync(tempDir);
+      let backedUp = 0;
+      let added = 0;
+
+      for (const file of downloadedFiles) {
+        const targetPath = join(rulerDir, file);
+        const sourcePath = join(tempDir, file);
+
+        if (existsSync(targetPath) && file.endsWith('.md')) {
+          // Backup existing file
+          const bakName = file.replace(/\.md$/, '.bak.md');
+          const bakPath = join(rulerDir, bakName);
+          renameSync(targetPath, bakPath);
+          backedUp++;
+          console.log(pc.yellow(`  ↳ Backed up ${file} → ${bakName}`));
+        }
+
+        // Copy new file
+        cpSync(sourcePath, targetPath, { recursive: true });
+        added++;
+      }
+
+      console.log(pc.green(`✓ .ruler directory updated (${added} files added, ${backedUp} backed up)`));
+    } else {
+      await runCommand('npx', ['degit', `${REPO}/.ruler`, '.ruler']);
+      console.log(pc.green('✓ .ruler directory created'));
+    }
   } catch (error) {
     console.error(pc.red('✗ Failed to download ruleset'));
     process.exit(1);
