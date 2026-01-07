@@ -1,10 +1,10 @@
 {
   "name": "tkhrn-ruler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Frontend common ruleset CLI for AI agents using Ruler",
   "type": "module",
   "bin": {
-    "tkhrn-ruler": "./dist/cli/index.js"
+    "tkhrn-ruler": "dist/cli/index.js"
   },
   "exports": {
     ".": {
@@ -37,7 +37,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ginameee/tkhrn-ruler"
+    "url": "git+https://github.com/ginameee/tkhrn-ruler.git"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

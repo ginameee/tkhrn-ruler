@@ -2,19 +2,70 @@
 
 Centralized AI agent instructions for frontend development projects using [Ruler](https://github.com/intellectronica/ruler).
 
-## Installation
-
-### Apply to Existing Project
+## Quick Start
 
 ```bash
-# Copy .ruler directory to your project
+# Initialize in your project
+npx tkhrn-ruler init
+
+# Apply rules to all agents
+npx tkhrn-ruler apply
+```
+
+That's it! Your project now has AI agent rules configured.
+
+---
+
+## Installation
+
+### Using CLI (Recommended)
+
+```bash
+# Initialize ruleset in current project
+npx tkhrn-ruler init
+
+# Options
+npx tkhrn-ruler init --skip-env        # Skip .env.mcp.example setup
+npx tkhrn-ruler init --skip-gitignore  # Skip .gitignore modification
+```
+
+### Manual Installation
+
+```bash
+# Copy .ruler directory
 npx degit ginameee/tkhrn-ruler/.ruler .ruler
 
 # Copy environment template
 npx degit ginameee/tkhrn-ruler/.env.mcp.example .env.mcp.example
 
-# Add to .gitignore
+# Update .gitignore
 echo -e "\n# Agent Handover Context\n.handover/\n\n# MCP tokens\n.env.mcp.local" >> .gitignore
+```
+
+---
+
+## Usage
+
+All ruler commands are available through `tkhrn-ruler`:
+
+```bash
+# Apply rules to all configured agents
+npx tkhrn-ruler apply
+
+# Apply to specific agents
+npx tkhrn-ruler apply --agents cursor,claude
+
+# Apply with nested rule discovery
+npx tkhrn-ruler apply --nested
+
+# Preview changes without applying
+npx tkhrn-ruler apply --dry-run
+
+# Verbose output
+npx tkhrn-ruler apply --verbose
+
+# Revert changes
+npx tkhrn-ruler revert
 ```
 
 ### Configure MCP Tokens
@@ -27,32 +78,18 @@ cp .env.mcp.example .env.mcp.local
 vim .env.mcp.local
 ```
 
-### Apply Rules
-
-```bash
-# Install Ruler globally (if not installed)
-npm install -g @intellectronica/ruler
-
-# Apply to all configured agents (Cursor, Claude, Codex)
-ruler apply
-
-# Apply to specific agents
-ruler apply --agents cursor,claude
-
-# Preview changes without applying
-ruler apply --dry-run
-```
-
 ---
 
 ## Project Structure
 
+After initialization:
+
 ```
-.
+your-project/
 ├── .ruler/
 │   ├── AGENTS.md          # Project overview
-│   ├── code-quality.md    # Code quality 4 principles
-│   ├── atomic-design.md   # Atomic Design pattern & boilerplate
+│   ├── code-quality.md    # Code quality principles
+│   ├── atomic-design.md   # Atomic Design pattern
 │   ├── handover.md        # Agent handover protocol
 │   └── ruler.toml         # Ruler configuration
 ├── .handover/             # Handover context (gitignored)
@@ -72,58 +109,42 @@ ruler apply --dry-run
 
 ## Configured Agents
 
-| Agent  | Output File              |
-|--------|--------------------------|
+| Agent  | Output File               |
+|--------|---------------------------|
 | Cursor | `.cursor/rules/rules.mdc` |
-| Claude | `CLAUDE.md`              |
-| Codex  | `codex.md`               |
+| Claude | `CLAUDE.md`               |
+| Codex  | `codex.md`                |
 
 ## MCP Servers
 
-| Server               | Purpose                              |
-|----------------------|--------------------------------------|
-| figma                | Design token extraction              |
-| notion               | Documentation access                 |
-| playwright           | Browser automation & E2E testing     |
-| sequential-thinking  | Complex reasoning & analysis         |
-| context7             | Library documentation lookup         |
+| Server              | Purpose                          |
+|---------------------|----------------------------------|
+| figma               | Design token extraction          |
+| notion              | Documentation access             |
+| playwright          | Browser automation & E2E testing |
+| sequential-thinking | Complex reasoning & analysis     |
+| context7            | Library documentation lookup     |
 
 ---
 
 ## Nested Rules
 
-Sub-projects can extend these rules:
+Sub-projects can extend these rules by creating their own `.ruler/` directory:
 
-```bash
-# Create sub-project rules
-mkdir -p packages/my-app/.ruler
+```
+packages/design-system/.ruler/
+├── AGENTS.md           # Design system specific rules
+└── component-api.md    # Component API guidelines
 
-# Add sub-project specific rules
-echo "# My App Rules" > packages/my-app/.ruler/AGENTS.md
+packages/admin-app/.ruler/
+├── AGENTS.md           # Admin app specific rules
+└── security.md         # Security guidelines
 ```
 
-When running `ruler apply --nested`, rules are discovered and concatenated with parent rules.
-
-## Commands
+Apply with nested discovery:
 
 ```bash
-# Apply rules to all agents
-ruler apply
-
-# Apply with nested rule discovery
-ruler apply --nested
-
-# Apply to specific agents
-ruler apply --agents cursor,claude
-
-# Preview changes
-ruler apply --dry-run
-
-# Verbose output
-ruler apply --verbose
-
-# Revert changes
-ruler revert
+npx tkhrn-ruler apply --nested
 ```
 
 ---
@@ -138,6 +159,8 @@ This ruleset enforces four fundamental frontend code quality principles:
 4. **Low Coupling** - Minimize dependencies between components
 
 See `.ruler/code-quality.md` for detailed guidelines and examples.
+
+---
 
 ## Customization
 
