@@ -43,28 +43,43 @@ enabled = true
 merge_strategy = "merge"
 
 # Figma MCP Server - Design token extraction and component specs
+# Package: figma-developer-mcp (by Framelink)
+# Docs: https://www.npmjs.com/package/figma-developer-mcp
+# Requires: FIGMA_ACCESS_TOKEN from https://www.figma.com/developers/api#access-tokens
 [mcp_servers.figma]
 command = "npx"
-args = ["-y", "@anthropic/mcp-server-figma"]
+args = ["-y", "figma-developer-mcp", "--figma-api-key=${FIGMA_ACCESS_TOKEN}", "--stdio"]
 env = { FIGMA_ACCESS_TOKEN = "${FIGMA_ACCESS_TOKEN}" }
 
 # Notion MCP Server - Documentation and knowledge base access
+# Package: @notionhq/notion-mcp-server (Official Notion)
+# Docs: https://github.com/makenotion/notion-mcp-server
+# Requires: NOTION_API_KEY (Internal Integration Token) from https://www.notion.so/my-integrations
 [mcp_servers.notion]
 command = "npx"
-args = ["-y", "@anthropic/mcp-server-notion"]
-env = { NOTION_API_KEY = "${NOTION_API_KEY}" }
+args = ["-y", "@notionhq/notion-mcp-server"]
+env = { OPENAPI_MCP_HEADERS = "{\"Authorization\": \"Bearer ${NOTION_API_KEY}\", \"Notion-Version\": \"2022-06-28\"}" }
 
 # Playwright MCP Server - Browser automation and E2E testing
+# Package: @playwright/mcp (Official Microsoft)
+# Docs: https://github.com/microsoft/playwright-mcp
+# No additional env required
 [mcp_servers.playwright]
 command = "npx"
-args = ["-y", "@anthropic/mcp-server-playwright"]
+args = ["-y", "@playwright/mcp@latest"]
 
 # Sequential Thinking MCP Server - Complex reasoning and analysis
+# Package: @modelcontextprotocol/server-sequential-thinking (Official MCP)
+# Docs: https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
+# No additional env required
 [mcp_servers.sequential-thinking]
 command = "npx"
-args = ["-y", "@anthropic/mcp-server-sequential-thinking"]
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
 
 # Context7 MCP Server - Library documentation lookup
+# Package: @upstash/context7-mcp (by Upstash)
+# Docs: https://github.com/upstash/context7
+# No additional env required
 [mcp_servers.context7]
 command = "npx"
-args = ["-y", "@context7/mcp-server"]
+args = ["-y", "@upstash/context7-mcp"]
