@@ -1,6 +1,6 @@
 {
   "name": "tkhrn-ruler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Frontend common ruleset CLI for AI agents using Ruler",
   "type": "module",
   "bin": {
