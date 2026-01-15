@@ -4,7 +4,10 @@
       "Bash(tree:*)",
       "Bash(npm run build:*)",
       "Bash(npm run apply:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "WebFetch(domain:frontend-fundamentals.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
