@@ -5,8 +5,8 @@ All sub-projects inherit these rules, with the ability to extend via nested `.ru
 
 ## Scope
 
-These rules apply ONLY to frontend projects in the apps directory of this monorepo.
-Backend projects and other non-frontend applications should follow their own guidelines.
+These rules apply to frontend development projects.
+Backend and other non-frontend applications should follow their respective architectural patterns.
 
 ---
 

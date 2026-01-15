@@ -10,8 +10,36 @@ CLAUDE.md
 codex.md
 .cursor/
 
+# Agent-specific directories (auto-generated)
+.claude/commands/
+.claude/skills/
+.cursor/commands/
+.cursor/skills/
+.cursor/subagents/
+.codex/commands/
+.codex/skills/
+.codex/subagents/
+
 # Backup files created by ruler
 *.bak
 
 # Node modules (if using local npm packages)
 node_modules/
+
+
+# START Ruler Generated Files
+/.codex/config.json
+/.codex/config.json.bak
+/.codex/config.toml
+/.codex/config.toml.bak
+/.cursor/mcp.json
+/.cursor/mcp.json.bak
+/.cursor/rules/rules.mdc
+/.cursor/rules/rules.mdc.bak
+/.mcp.json
+/.mcp.json.bak
+/AGENTS.md
+/AGENTS.md.bak
+/CLAUDE.md
+/CLAUDE.md.bak
+# END Ruler Generated Files

@@ -17,6 +17,10 @@ output_path = ".cursor/rules/rules.mdc"
 # Cursor custom commands directory
 # Commands will be copied to this location when running 'tkhrn-ruler apply'
 command_path = ".cursor/commands"
+# Skills directory for code analysis patterns
+skills_path = ".cursor/skills"
+# Subagents directory for specialized AI agents
+subagents_path = ".cursor/subagents"
 
 [agents.claude]
 enabled = true
@@ -25,6 +29,11 @@ output_path = "CLAUDE.md"
 # Claude Desktop typically uses project root or .claude/ directory
 # You can customize this path based on your Claude setup
 command_path = ".claude/commands"
+# Skills directory for code analysis patterns
+skills_path = ".claude/skills"
+# Subagents are treated as commands in Claude
+# They will be copied to command_path for Claude compatibility
+subagents_path = ".claude/commands"
 
 [agents.codex]
 enabled = true
@@ -33,6 +42,10 @@ output_path = "codex.md"
 # Codex typically uses project root or .codex/ directory
 # You can customize this path based on your Codex setup
 command_path = ".codex/commands"
+# Skills directory for code analysis patterns
+skills_path = ".codex/skills"
+# Subagents directory for specialized AI agents
+subagents_path = ".codex/subagents"
 
 # --- MCP Servers ---
 # Token values should be defined in .env.mcp.local

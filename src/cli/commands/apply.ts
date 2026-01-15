@@ -8,6 +8,8 @@ interface AgentConfig {
   enabled?: boolean;
   output_path?: string;
   command_path?: string;
+  skills_path?: string;
+  subagents_path?: string;
 }
 
 interface RulerConfig {
@@ -22,6 +24,20 @@ const DEFAULT_COMMAND_PATHS: Record<string, string> = {
   cursor: '.cursor/commands',
   claude: '.claude/commands',
   codex: '.codex/commands',
+};
+
+// Default skills paths for each agent
+const DEFAULT_SKILLS_PATHS: Record<string, string> = {
+  cursor: '.cursor/skills',
+  claude: '.claude/skills',
+  codex: '.codex/skills',
+};
+
+// Default subagents paths for each agent
+const DEFAULT_SUBAGENTS_PATHS: Record<string, string> = {
+  cursor: '.cursor/subagents',
+  claude: '.claude/commands', // Claude treats subagents as commands
+  codex: '.codex/subagents',
 };
 
 export async function apply(options: { nested?: boolean } = {}) {
@@ -55,7 +71,15 @@ export async function apply(options: { nested?: boolean } = {}) {
   console.log(pc.dim('\n→ Copying custom commands...'));
   await copyCommands(cwd, config, options.nested);
 
-  console.log(pc.bold(pc.green('\n✅ Rules and commands applied successfully!\n')));
+  // Copy skills
+  console.log(pc.dim('\n→ Copying skills...'));
+  await copySkills(cwd, config, options.nested);
+
+  // Copy subagents
+  console.log(pc.dim('\n→ Copying subagents...'));
+  await copySubagents(cwd, config, options.nested);
+
+  console.log(pc.bold(pc.green('\n✅ Rules, commands, skills, and subagents applied successfully!\n')));
 }
 
 async function runRulerApply(nested?: boolean): Promise<void> {
@@ -262,6 +286,210 @@ function copyCommandsWithBackup(source: string, dest: string): void {
 
       // Copy the new file
       copyFileSync(sourcePath, destPath);
+    }
+  }
+}
+
+/**
+ * Copy skills from .ruler/skills to agent-specific skills directories
+ */
+async function copySkills(
+  cwd: string,
+  config: RulerConfig,
+  nested?: boolean
+): Promise<void> {
+  const rulerSkillsPath = join(cwd, '.ruler', 'skills');
+
+  // If skills directory doesn't exist, skip
+  if (!existsSync(rulerSkillsPath)) {
+    console.log(pc.dim('  No .ruler/skills directory found, skipping skills copy'));
+    return;
+  }
+
+  const agents = config.agents || {};
+  const defaultAgents = ['cursor', 'claude', 'codex'];
+
+  // Copy skills to all enabled agents
+  for (const agentName of defaultAgents) {
+    const agentConfig = agents[agentName] || {};
+
+    // Skip if agent is disabled
+    if (agentConfig.enabled === false) {
+      continue;
+    }
+
+    // Determine destination path
+    const skillsPath = agentConfig.skills_path || DEFAULT_SKILLS_PATHS[agentName];
+    if (!skillsPath) {
+      console.warn(pc.yellow(`  Warning: No skills_path configured for ${agentName}, skipping`));
+      continue;
+    }
+
+    const destPath = join(cwd, skillsPath);
+
+    // Copy skills to this agent's skills directory
+    try {
+      copyCommandsWithBackup(rulerSkillsPath, destPath);
+      console.log(pc.green(`  ✓ Copied skills to ${agentName} → ${skillsPath}`));
+    } catch (error) {
+      console.error(pc.red(`  ✗ Failed to copy skills to ${agentName}: ${error}`));
+    }
+  }
+
+  // Handle nested skills if nested option is enabled
+  if (nested) {
+    await copyNestedSkills(cwd, config);
+  }
+}
+
+/**
+ * Copy nested skills from sub-projects
+ */
+async function copyNestedSkills(
+  cwd: string,
+  config: RulerConfig
+): Promise<void> {
+  const nestedRulers = findNestedRulers(cwd);
+
+  for (const nestedRulerPath of nestedRulers) {
+    const nestedSkillsPath = join(nestedRulerPath, 'skills');
+
+    if (!existsSync(nestedSkillsPath)) {
+      continue;
+    }
+
+    const relativePath = nestedRulerPath
+      .replace(cwd, '')
+      .replace(/\\.ruler$/, '')
+      .replace(/^\//, '')
+      .replace(/^\\/, '');
+    const nestedProjectPath = relativePath ? join(cwd, relativePath) : cwd;
+
+    const agents = config.agents || {};
+    const defaultAgents = ['cursor', 'claude', 'codex'];
+
+    for (const agentName of defaultAgents) {
+      const agentConfig = agents[agentName] || {};
+
+      if (agentConfig.enabled === false) {
+        continue;
+      }
+
+      const skillsPath = agentConfig.skills_path || DEFAULT_SKILLS_PATHS[agentName];
+      if (!skillsPath) {
+        continue;
+      }
+
+      const destPath = join(nestedProjectPath, skillsPath);
+
+      try {
+        copyCommandsWithBackup(nestedSkillsPath, destPath);
+        console.log(pc.green(`  ✓ Copied nested skills to ${agentName} in ${relativePath} → ${skillsPath}`));
+      } catch (error) {
+        console.error(pc.red(`  ✗ Failed to copy nested skills to ${agentName} in ${relativePath}: ${error}`));
+      }
+    }
+  }
+}
+
+/**
+ * Copy subagents from .ruler/subagents to agent-specific subagents directories
+ */
+async function copySubagents(
+  cwd: string,
+  config: RulerConfig,
+  nested?: boolean
+): Promise<void> {
+  const rulerSubagentsPath = join(cwd, '.ruler', 'subagents');
+
+  // If subagents directory doesn't exist, skip
+  if (!existsSync(rulerSubagentsPath)) {
+    console.log(pc.dim('  No .ruler/subagents directory found, skipping subagents copy'));
+    return;
+  }
+
+  const agents = config.agents || {};
+  const defaultAgents = ['cursor', 'claude', 'codex'];
+
+  // Copy subagents to all enabled agents
+  for (const agentName of defaultAgents) {
+    const agentConfig = agents[agentName] || {};
+
+    // Skip if agent is disabled
+    if (agentConfig.enabled === false) {
+      continue;
+    }
+
+    // Determine destination path
+    const subagentsPath = agentConfig.subagents_path || DEFAULT_SUBAGENTS_PATHS[agentName];
+    if (!subagentsPath) {
+      console.warn(pc.yellow(`  Warning: No subagents_path configured for ${agentName}, skipping`));
+      continue;
+    }
+
+    const destPath = join(cwd, subagentsPath);
+
+    // Copy subagents to this agent's subagents directory
+    try {
+      copyCommandsWithBackup(rulerSubagentsPath, destPath);
+      console.log(pc.green(`  ✓ Copied subagents to ${agentName} → ${subagentsPath}`));
+    } catch (error) {
+      console.error(pc.red(`  ✗ Failed to copy subagents to ${agentName}: ${error}`));
+    }
+  }
+
+  // Handle nested subagents if nested option is enabled
+  if (nested) {
+    await copyNestedSubagents(cwd, config);
+  }
+}
+
+/**
+ * Copy nested subagents from sub-projects
+ */
+async function copyNestedSubagents(
+  cwd: string,
+  config: RulerConfig
+): Promise<void> {
+  const nestedRulers = findNestedRulers(cwd);
+
+  for (const nestedRulerPath of nestedRulers) {
+    const nestedSubagentsPath = join(nestedRulerPath, 'subagents');
+
+    if (!existsSync(nestedSubagentsPath)) {
+      continue;
+    }
+
+    const relativePath = nestedRulerPath
+      .replace(cwd, '')
+      .replace(/\\.ruler$/, '')
+      .replace(/^\//, '')
+      .replace(/^\\/, '');
+    const nestedProjectPath = relativePath ? join(cwd, relativePath) : cwd;
+
+    const agents = config.agents || {};
+    const defaultAgents = ['cursor', 'claude', 'codex'];
+
+    for (const agentName of defaultAgents) {
+      const agentConfig = agents[agentName] || {};
+
+      if (agentConfig.enabled === false) {
+        continue;
+      }
+
+      const subagentsPath = agentConfig.subagents_path || DEFAULT_SUBAGENTS_PATHS[agentName];
+      if (!subagentsPath) {
+        continue;
+      }
+
+      const destPath = join(nestedProjectPath, subagentsPath);
+
+      try {
+        copyCommandsWithBackup(nestedSubagentsPath, destPath);
+        console.log(pc.green(`  ✓ Copied nested subagents to ${agentName} in ${relativePath} → ${subagentsPath}`));
+      } catch (error) {
+        console.error(pc.red(`  ✗ Failed to copy nested subagents to ${agentName} in ${relativePath}: ${error}`));
+      }
     }
   }
 }
